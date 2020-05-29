@@ -1,7 +1,6 @@
-﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29025.244
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2036
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChanSort", "ChanSort\ChanSort.csproj", "{5FAFDABC-A52F-498C-BD2F-AFFC4119797A}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -22,6 +21,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{67AED502-8AEB-45F2-9B95-AC42B6A5D2C4}"
 	ProjectSection(SolutionItems) = preProject
 		changelog.md = changelog.md
+		Local.testsettings = Local.testsettings
 		..\readme.md = ..\readme.md
 		..\readme_de.md = ..\readme_de.md
 	EndProjectSection
@@ -73,6 +73,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.Loader.Toshiba", "Test.Loader.Toshiba\Test.Loader.Toshiba.csproj", "{D7B71F40-C941-4364-A25F-8D41B384507A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.Loader.VDR", "Test.Loader.VDR\Test.Loader.VDR.csproj", "{AED060F0-495C-494C-89C2-7A96A0FA3762}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChanSort.Loader.PhilipsBin", "ChanSort.Loader.PhilipsBin\ChanSort.Loader.PhilipsBin.csproj", "{68DA8072-3A29-4076-9F64-D76F38349585}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.Loader.PhilipsBin", "Test.Loader.PhilipsBin\Test.Loader.PhilipsBin.csproj", "{B2260DAB-6DD6-436B-8B1C-F1633B1A5ABE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -408,6 +412,30 @@ Global
 		{AED060F0-495C-494C-89C2-7A96A0FA3762}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{AED060F0-495C-494C-89C2-7A96A0FA3762}.Release|x86.ActiveCfg = Release|x86
 		{AED060F0-495C-494C-89C2-7A96A0FA3762}.Release|x86.Build.0 = Release|x86
+		{68DA8072-3A29-4076-9F64-D76F38349585}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68DA8072-3A29-4076-9F64-D76F38349585}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68DA8072-3A29-4076-9F64-D76F38349585}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{68DA8072-3A29-4076-9F64-D76F38349585}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{68DA8072-3A29-4076-9F64-D76F38349585}.Debug|x86.ActiveCfg = Debug|x86
+		{68DA8072-3A29-4076-9F64-D76F38349585}.Debug|x86.Build.0 = Debug|x86
+		{68DA8072-3A29-4076-9F64-D76F38349585}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68DA8072-3A29-4076-9F64-D76F38349585}.Release|Any CPU.Build.0 = Release|Any CPU
+		{68DA8072-3A29-4076-9F64-D76F38349585}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{68DA8072-3A29-4076-9F64-D76F38349585}.Release|Mixed Platforms.Build.0 = Release|x86
+		{68DA8072-3A29-4076-9F64-D76F38349585}.Release|x86.ActiveCfg = Release|x86
+		{68DA8072-3A29-4076-9F64-D76F38349585}.Release|x86.Build.0 = Release|x86
+		{B2260DAB-6DD6-436B-8B1C-F1633B1A5ABE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B2260DAB-6DD6-436B-8B1C-F1633B1A5ABE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B2260DAB-6DD6-436B-8B1C-F1633B1A5ABE}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{B2260DAB-6DD6-436B-8B1C-F1633B1A5ABE}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{B2260DAB-6DD6-436B-8B1C-F1633B1A5ABE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B2260DAB-6DD6-436B-8B1C-F1633B1A5ABE}.Debug|x86.Build.0 = Debug|Any CPU
+		{B2260DAB-6DD6-436B-8B1C-F1633B1A5ABE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B2260DAB-6DD6-436B-8B1C-F1633B1A5ABE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B2260DAB-6DD6-436B-8B1C-F1633B1A5ABE}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{B2260DAB-6DD6-436B-8B1C-F1633B1A5ABE}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{B2260DAB-6DD6-436B-8B1C-F1633B1A5ABE}.Release|x86.ActiveCfg = Release|Any CPU
+		{B2260DAB-6DD6-436B-8B1C-F1633B1A5ABE}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
