@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ChanSort.Loader.Hisense2017</RootNamespace>
     <AssemblyName>ChanSort.Loader.Hisense2017</AssemblyName>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
@@ -61,7 +61,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\DLL\System.Data.SQLite.dll</HintPath>
     </Reference>
-    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -89,6 +88,7 @@
     <EmbeddedResource Include="Resources.cs.resx" />
     <EmbeddedResource Include="Resources.de.resx" />
     <EmbeddedResource Include="Resources.es.resx" />
+    <EmbeddedResource Include="Resources.pl.resx" />
     <EmbeddedResource Include="Resources.pt.resx" />
     <EmbeddedResource Include="Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -96,6 +96,7 @@
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources.ro.resx" />
+    <EmbeddedResource Include="Resources.tr.resx" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

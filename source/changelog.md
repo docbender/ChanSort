@@ -1,6 +1,62 @@
 ChanSort Change Log 
 ===================
 
+2020-05-15
+- fixed more issues with the LG WebOS 5.0 format
+
+2020-05-11
+- improved support for LG OLED series (CX) - now supports lists with multiple sources (DVB-C, DVB-S), but still no favorite lists
+- added info screen when opening an empty LG channel list which is most likely caused by selecting a predefined list
+  during the TV setup or channel search
+- fixed: Sony KDL channel lists were not saved correctly
+- upgrade to DevExpres 20.1.3
+
+2020-05-03
+- added experimental support for LG WebOS 5.0 (e.g. OLED CX series) - NO FAV LISTS YET
+
+2020-05-02
+- added Turkish translation (thanks to Ali Haykir)
+- Philips: combined DVB-C and DVB-T into a single list with a common number domain
+- added exprimental support for Samsung "iptv" list
+- added Suiss reference lists with Astra 19.2E + Hotbird 13.0E channels
+- fixed "System.ArgumentOutOfRangeException..." when opening a file which supports mixed-source favorite lists 
+  (Sony, Philips, Hisense, ...)
+- System requirements changed: .NET Framework 4.8
+- added high-DPI support
+- added Accessibility menu options to change the UI font size
+
+2020-03-20
+- another attempt to get Samsung 1352.0 format working
+
+2020-03-15
+- repackaged to include Polish translation files
+
+2020-03-14
+- check for updates can now handle multiple updates on a specific day
+- fixed applying favorites from a reference list (it showed fav letters on the channels, but the fav lists were empty)
+- added Polish translation (thanks to Jakub Driver!)
+- potential fix for Samsung 1352.0 format, which can contain channels marked as deleted 
+
+2020-02-11 (re-upload)
+- fixed: removing channels from a favorite list caused incorrect reordering
+
+2020-02-11
+- Philips: show and edit customized titles of favorite lists
+- fixed non-unique numbers in mixed-source favorite lists when using "Add to Fav A" (Panasonic, Hisense, Sony, Philips)
+- function to reorder channels from 1-x is now reordering all channels when only a single one was selected
+- function to sort channels by name is now reordering all channels when only a single one was selected
+
+2020-02-02
+- fixed (hopefully): When channels were deleted from Sony lists, the TV reordered the list randomly after a reboot
+
+2020-01-02
+- added support for m3u lists (SAT>IP, VLC, WinAmp, ...)
+- added support for Hisense H50B7700UW (and maybe others which use the same favorite list table schema)
+- fixed support for Philips lists with format 100
+- fixed missing DLLs with spanish translation
+- fixed polarity display for Samsung (caused by a stale .ini file in the package)
+- disabled "Lock" toggle button when the list does not support parental locks
+
 2020-01-01
 - fixed loading of Samsung .scm files (Samsung.ini file was missing in the release package)
 - added "polarity" information for Samsung .scm and .zip files

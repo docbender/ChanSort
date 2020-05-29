@@ -85,6 +85,7 @@
       this.colServiceType = new DevExpress.XtraGrid.Columns.GridColumn();
       this.colServiceTypeName = new DevExpress.XtraGrid.Columns.GridColumn();
       this.colFreqInMhz = new DevExpress.XtraGrid.Columns.GridColumn();
+      this.colPolarity = new DevExpress.XtraGrid.Columns.GridColumn();
       this.colChannelOrTransponder = new DevExpress.XtraGrid.Columns.GridColumn();
       this.colSatellite = new DevExpress.XtraGrid.Columns.GridColumn();
       this.colNetworkId = new DevExpress.XtraGrid.Columns.GridColumn();
@@ -94,7 +95,6 @@
       this.colVideoPid = new DevExpress.XtraGrid.Columns.GridColumn();
       this.colAudioPid = new DevExpress.XtraGrid.Columns.GridColumn();
       this.colSymbolRate = new DevExpress.XtraGrid.Columns.GridColumn();
-      this.colPolarity = new DevExpress.XtraGrid.Columns.GridColumn();
       this.colNetworkName = new DevExpress.XtraGrid.Columns.GridColumn();
       this.colNetworkOperator = new DevExpress.XtraGrid.Columns.GridColumn();
       this.colProvider = new DevExpress.XtraGrid.Columns.GridColumn();
@@ -150,9 +150,11 @@
       this.miCzech = new DevExpress.XtraBars.BarButtonItem();
       this.miGerman = new DevExpress.XtraBars.BarButtonItem();
       this.miSpanish = new DevExpress.XtraBars.BarButtonItem();
+      this.miPolski = new DevExpress.XtraBars.BarButtonItem();
       this.miPortuguese = new DevExpress.XtraBars.BarButtonItem();
       this.miRomanian = new DevExpress.XtraBars.BarButtonItem();
       this.miRussian = new DevExpress.XtraBars.BarButtonItem();
+      this.miTurkish = new DevExpress.XtraBars.BarButtonItem();
       this.mnuCharset = new DevExpress.XtraBars.BarSubItem();
       this.miCharsetForm = new DevExpress.XtraBars.BarButtonItem();
       this.miUtf8Charset = new DevExpress.XtraBars.BarButtonItem();
@@ -176,6 +178,11 @@
       this.miGotoLeftList = new DevExpress.XtraBars.BarButtonItem();
       this.miRightListFilter = new DevExpress.XtraBars.BarButtonItem();
       this.miGotoRightList = new DevExpress.XtraBars.BarButtonItem();
+      this.miFontSmall = new DevExpress.XtraBars.BarButtonItem();
+      this.miFontMedium = new DevExpress.XtraBars.BarButtonItem();
+      this.miFontLarge = new DevExpress.XtraBars.BarButtonItem();
+      this.miFontXLarge = new DevExpress.XtraBars.BarButtonItem();
+      this.miFontXxLarge = new DevExpress.XtraBars.BarButtonItem();
       this.mnuHelp = new DevExpress.XtraBars.BarSubItem();
       this.miWiki = new DevExpress.XtraBars.BarButtonItem();
       this.miOpenWebsite = new DevExpress.XtraBars.BarButtonItem();
@@ -342,6 +349,7 @@
       resources.ApplyResources(this.colIndex1, "colIndex1");
       this.colIndex1.FieldName = "RecordIndex";
       this.colIndex1.Name = "colIndex1";
+      this.colIndex1.OptionsColumn.AllowEdit = false;
       // 
       // colOutSlot
       // 
@@ -421,6 +429,7 @@
       resources.ApplyResources(this.colOutSource, "colOutSource");
       this.colOutSource.FieldName = "Source";
       this.colOutSource.Name = "colOutSource";
+      this.colOutSource.OptionsColumn.AllowEdit = false;
       // 
       // colUid1
       // 
@@ -532,7 +541,7 @@
       // btnClearLeftFilter
       // 
       resources.ApplyResources(this.btnClearLeftFilter, "btnClearLeftFilter");
-      this.btnClearLeftFilter.Appearance.Font = ((System.Drawing.Font)(resources.GetObject("btnClearLeftFilter.Appearance.Font")));
+      this.btnClearLeftFilter.Appearance.FontStyleDelta = ((System.Drawing.FontStyle)(resources.GetObject("btnClearLeftFilter.Appearance.FontStyleDelta")));
       this.btnClearLeftFilter.Appearance.Options.UseFont = true;
       this.btnClearLeftFilter.ImageOptions.ImageIndex = ((int)(resources.GetObject("btnClearLeftFilter.ImageOptions.ImageIndex")));
       this.btnClearLeftFilter.ImageOptions.ImageList = this.globalImageCollection1;
@@ -803,6 +812,13 @@
       this.colFreqInMhz.Name = "colFreqInMhz";
       this.colFreqInMhz.OptionsColumn.AllowEdit = false;
       // 
+      // colPolarity
+      // 
+      resources.ApplyResources(this.colPolarity, "colPolarity");
+      this.colPolarity.FieldName = "Polarity";
+      this.colPolarity.Name = "colPolarity";
+      this.colPolarity.OptionsColumn.AllowEdit = false;
+      // 
       // colChannelOrTransponder
       // 
       resources.ApplyResources(this.colChannelOrTransponder, "colChannelOrTransponder");
@@ -864,13 +880,6 @@
       this.colSymbolRate.FieldName = "SymbolRate";
       this.colSymbolRate.Name = "colSymbolRate";
       this.colSymbolRate.OptionsColumn.AllowEdit = false;
-      // 
-      // colPolarity
-      // 
-      resources.ApplyResources(this.colPolarity, "colPolarity");
-      this.colPolarity.FieldName = "Polarity";
-      this.colPolarity.Name = "colPolarity";
-      this.colPolarity.OptionsColumn.AllowEdit = false;
       // 
       // colNetworkName
       // 
@@ -962,7 +971,7 @@
       // btnClearRightFilter
       // 
       resources.ApplyResources(this.btnClearRightFilter, "btnClearRightFilter");
-      this.btnClearRightFilter.Appearance.Font = ((System.Drawing.Font)(resources.GetObject("btnClearRightFilter.Appearance.Font")));
+      this.btnClearRightFilter.Appearance.FontStyleDelta = ((System.Drawing.FontStyle)(resources.GetObject("btnClearRightFilter.Appearance.FontStyleDelta")));
       this.btnClearRightFilter.Appearance.Options.UseFont = true;
       this.btnClearRightFilter.ImageOptions.ImageIndex = ((int)(resources.GetObject("btnClearRightFilter.ImageOptions.ImageIndex")));
       this.btnClearRightFilter.ImageOptions.ImageList = this.globalImageCollection1;
@@ -1064,9 +1073,16 @@
             this.miCheckUpdates,
             this.miUtf8Charset,
             this.miCopyCsv,
-            this.miSpanish});
+            this.miSpanish,
+            this.miPolski,
+            this.miTurkish,
+            this.miFontSmall,
+            this.miFontMedium,
+            this.miFontLarge,
+            this.miFontXLarge,
+            this.miFontXxLarge});
       this.barManager1.MainMenu = this.bar1;
-      this.barManager1.MaxItemId = 102;
+      this.barManager1.MaxItemId = 109;
       this.barManager1.ShowFullMenus = true;
       // 
       // bar1
@@ -1465,9 +1481,11 @@
             new DevExpress.XtraBars.LinkPersistInfo(this.miCzech),
             new DevExpress.XtraBars.LinkPersistInfo(this.miGerman),
             new DevExpress.XtraBars.LinkPersistInfo(this.miSpanish),
+            new DevExpress.XtraBars.LinkPersistInfo(this.miPolski),
             new DevExpress.XtraBars.LinkPersistInfo(this.miPortuguese),
             new DevExpress.XtraBars.LinkPersistInfo(this.miRomanian),
-            new DevExpress.XtraBars.LinkPersistInfo(this.miRussian)});
+            new DevExpress.XtraBars.LinkPersistInfo(this.miRussian),
+            new DevExpress.XtraBars.LinkPersistInfo(this.miTurkish)});
       this.barSubItem1.Name = "barSubItem1";
       this.barSubItem1.PaintStyle = DevExpress.XtraBars.BarItemPaintStyle.CaptionInMenu;
       // 
@@ -1513,6 +1531,16 @@
       this.miSpanish.Tag = "es-ES";
       this.miSpanish.DownChanged += new DevExpress.XtraBars.ItemClickEventHandler(this.miLanguage_DownChanged);
       // 
+      // miPolski
+      // 
+      this.miPolski.ButtonStyle = DevExpress.XtraBars.BarButtonStyle.Check;
+      resources.ApplyResources(this.miPolski, "miPolski");
+      this.miPolski.Id = 102;
+      this.miPolski.ImageOptions.ImageIndex = ((int)(resources.GetObject("miPolski.ImageOptions.ImageIndex")));
+      this.miPolski.Name = "miPolski";
+      this.miPolski.Tag = "pl-PL";
+      this.miPolski.DownChanged += new DevExpress.XtraBars.ItemClickEventHandler(this.miLanguage_DownChanged);
+      // 
       // miPortuguese
       // 
       this.miPortuguese.ButtonStyle = DevExpress.XtraBars.BarButtonStyle.Check;
@@ -1542,6 +1570,16 @@
       this.miRussian.Name = "miRussian";
       this.miRussian.Tag = "ru-RU";
       this.miRussian.DownChanged += new DevExpress.XtraBars.ItemClickEventHandler(this.miLanguage_DownChanged);
+      // 
+      // miTurkish
+      // 
+      this.miTurkish.ButtonStyle = DevExpress.XtraBars.BarButtonStyle.Check;
+      resources.ApplyResources(this.miTurkish, "miTurkish");
+      this.miTurkish.Id = 103;
+      this.miTurkish.ImageOptions.ImageIndex = ((int)(resources.GetObject("miTurkish.ImageOptions.ImageIndex")));
+      this.miTurkish.Name = "miTurkish";
+      this.miTurkish.Tag = "tr-TR";
+      this.miTurkish.DownChanged += new DevExpress.XtraBars.ItemClickEventHandler(this.miLanguage_DownChanged);
       // 
       // mnuCharset
       // 
@@ -1622,7 +1660,12 @@
             new DevExpress.XtraBars.LinkPersistInfo(this.miGotoLeftFilter),
             new DevExpress.XtraBars.LinkPersistInfo(this.miGotoLeftList),
             new DevExpress.XtraBars.LinkPersistInfo(this.miRightListFilter),
-            new DevExpress.XtraBars.LinkPersistInfo(this.miGotoRightList)});
+            new DevExpress.XtraBars.LinkPersistInfo(this.miGotoRightList),
+            new DevExpress.XtraBars.LinkPersistInfo(this.miFontSmall, true),
+            new DevExpress.XtraBars.LinkPersistInfo(this.miFontMedium),
+            new DevExpress.XtraBars.LinkPersistInfo(this.miFontLarge),
+            new DevExpress.XtraBars.LinkPersistInfo(this.miFontXLarge),
+            new DevExpress.XtraBars.LinkPersistInfo(this.miFontXxLarge)});
       this.mnuAccessibility.Name = "mnuAccessibility";
       // 
       // mnuGotoChannelList
@@ -1760,6 +1803,52 @@
       this.miGotoRightList.Name = "miGotoRightList";
       this.miGotoRightList.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.miGotoRightList_ItemClick);
       // 
+      // miFontSmall
+      // 
+      this.miFontSmall.ButtonStyle = DevExpress.XtraBars.BarButtonStyle.Check;
+      resources.ApplyResources(this.miFontSmall, "miFontSmall");
+      this.miFontSmall.Down = true;
+      this.miFontSmall.Id = 104;
+      this.miFontSmall.Name = "miFontSmall";
+      this.miFontSmall.Tag = 0;
+      this.miFontSmall.DownChanged += new DevExpress.XtraBars.ItemClickEventHandler(this.miFont_DownChanged);
+      // 
+      // miFontMedium
+      // 
+      this.miFontMedium.ButtonStyle = DevExpress.XtraBars.BarButtonStyle.Check;
+      resources.ApplyResources(this.miFontMedium, "miFontMedium");
+      this.miFontMedium.Id = 105;
+      this.miFontMedium.Name = "miFontMedium";
+      this.miFontMedium.Tag = 1;
+      this.miFontMedium.DownChanged += new DevExpress.XtraBars.ItemClickEventHandler(this.miFont_DownChanged);
+      // 
+      // miFontLarge
+      // 
+      this.miFontLarge.ButtonStyle = DevExpress.XtraBars.BarButtonStyle.Check;
+      resources.ApplyResources(this.miFontLarge, "miFontLarge");
+      this.miFontLarge.Id = 106;
+      this.miFontLarge.Name = "miFontLarge";
+      this.miFontLarge.Tag = 2;
+      this.miFontLarge.DownChanged += new DevExpress.XtraBars.ItemClickEventHandler(this.miFont_DownChanged);
+      // 
+      // miFontXLarge
+      // 
+      this.miFontXLarge.ButtonStyle = DevExpress.XtraBars.BarButtonStyle.Check;
+      resources.ApplyResources(this.miFontXLarge, "miFontXLarge");
+      this.miFontXLarge.Id = 107;
+      this.miFontXLarge.Name = "miFontXLarge";
+      this.miFontXLarge.Tag = 3;
+      this.miFontXLarge.DownChanged += new DevExpress.XtraBars.ItemClickEventHandler(this.miFont_DownChanged);
+      // 
+      // miFontXxLarge
+      // 
+      this.miFontXxLarge.ButtonStyle = DevExpress.XtraBars.BarButtonStyle.Check;
+      resources.ApplyResources(this.miFontXxLarge, "miFontXxLarge");
+      this.miFontXxLarge.Id = 108;
+      this.miFontXxLarge.Name = "miFontXxLarge";
+      this.miFontXxLarge.Tag = 4;
+      this.miFontXxLarge.DownChanged += new DevExpress.XtraBars.ItemClickEventHandler(this.miFont_DownChanged);
+      // 
       // mnuHelp
       // 
       resources.ApplyResources(this.mnuHelp, "mnuHelp");
@@ -1871,6 +1960,7 @@
       this.picDonate.Properties.Appearance.Options.UseBackColor = true;
       this.picDonate.Properties.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
       this.picDonate.Properties.PictureAlignment = System.Drawing.ContentAlignment.TopRight;
+      this.picDonate.Properties.SizeMode = DevExpress.XtraEditors.Controls.PictureSizeMode.Zoom;
       this.picDonate.Click += new System.EventHandler(this.picDonate_Click);
       // 
       // defaultLookAndFeel1
@@ -1991,6 +2081,7 @@
       this.tabSubList.TabPages.AddRange(new DevExpress.XtraTab.XtraTabPage[] {
             this.pageProgNr});
       this.tabSubList.SelectedPageChanged += new DevExpress.XtraTab.TabPageChangedEventHandler(this.tabSubList_SelectedPageChanged);
+      this.tabSubList.MouseUp += new System.Windows.Forms.MouseEventHandler(this.tabSubList_MouseUp);
       // 
       // pageProgNr
       // 
@@ -2255,6 +2346,13 @@
     private DevExpress.XtraBars.BarButtonItem miCopyCsv;
     private DevExpress.XtraGrid.Columns.GridColumn colOutSource;
         private DevExpress.XtraBars.BarButtonItem miSpanish;
+        private DevExpress.XtraBars.BarButtonItem miPolski;
+        private DevExpress.XtraBars.BarButtonItem miTurkish;
+        private DevExpress.XtraBars.BarButtonItem miFontSmall;
+        private DevExpress.XtraBars.BarButtonItem miFontMedium;
+        private DevExpress.XtraBars.BarButtonItem miFontLarge;
+        private DevExpress.XtraBars.BarButtonItem miFontXLarge;
+        private DevExpress.XtraBars.BarButtonItem miFontXxLarge;
     }
 }
 

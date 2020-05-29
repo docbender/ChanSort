@@ -331,9 +331,9 @@ namespace ChanSort.Api
           tvChannel.Favorites = refChannel.Favorites & DataRoot.SupportedFavorites;
           if (refDataRoot.SortedFavorites)
           {
-            var c = Math.Min(refChannel.FavIndex.Count, tvChannel.FavIndex.Count);
+            var c = Math.Min(refChannel.FavIndex.Count, tvChannel.OldFavIndex.Count);
             for (int i = 0; i < c; i++)
-              tvChannel.FavIndex[i] = refChannel.FavIndex[i];
+              tvChannel.FavIndex[i] = refChannel.OldFavIndex[i];
           }
           else
             this.ApplyPrNrToFavLists(tvChannel);
@@ -342,6 +342,7 @@ namespace ChanSort.Api
       else
       {
         tvChannel.Favorites = refChannel.Favorites & DataRoot.SupportedFavorites;
+        this.ApplyPrNrToFavLists(tvChannel);
       }
     }
 
@@ -349,22 +350,18 @@ namespace ChanSort.Api
 
 
     #region SetFavorites()
-    public void SetFavorites(List<ChannelInfo> list, Favorites favorites, bool set)
+    public void SetFavorites(List<ChannelInfo> list, int favIndex, bool set)
     {
       bool sortedFav = this.DataRoot.SortedFavorites;
-      int favIndex = 0;
-      if (sortedFav)
-      {
-        for (int mask = (int) favorites; (mask & 1) == 0; mask >>= 1)
-          ++favIndex;
-      }
+      var favMask = (Favorites)(1 << favIndex);
+      var favList = this.DataRoot.ChannelLists.FirstOrDefault(l => l.IsMixedSourceFavoritesList) ?? this.ChannelList;
 
       if (set)
       {
         int maxPosition = 0;
         if (sortedFav)
         {
-          foreach (var channel in this.ChannelList.Channels)
+          foreach (var channel in favList.Channels)
             maxPosition = Math.Max(maxPosition, channel.FavIndex[favIndex]);
         }
 
@@ -372,7 +369,7 @@ namespace ChanSort.Api
         {
           if (sortedFav && channel.FavIndex[favIndex] == -1)
             channel.FavIndex[favIndex] = ++maxPosition;
-          channel.Favorites |= favorites;
+          channel.Favorites |= favMask;
         }
       }
       else
@@ -380,11 +377,19 @@ namespace ChanSort.Api
         foreach (var channel in list)
         {
           if (sortedFav && channel.FavIndex[favIndex] != -1)
-          {
             channel.FavIndex[favIndex] = -1;
-            // TODO close gap by pulling down higher numbers
+          channel.Favorites &= ~favMask;
+        }
+
+        // close gaps when needed
+        if (sortedFav && !this.DataRoot.AllowGapsInFavNumbers)
+        {
+          int i = 0;
+          foreach (var channel in favList.Channels.OrderBy(c => c.FavIndex[favIndex]))
+          {
+            if (channel.FavIndex[favIndex] != -1)
+              channel.FavIndex[favIndex] = ++i;
           }
-          channel.Favorites &= ~favorites;
         }
       }
     }
@@ -413,7 +418,7 @@ namespace ChanSort.Api
       var refMask = (int)tvChannel.Favorites;
       for (int i = 0; supMask != 0; i++)
       {
-        tvChannel.FavIndex[i] = (refMask & 0x01) == 0 ? -1 : tvChannel.OldProgramNr;
+        tvChannel.FavIndex[i] = (refMask & 0x01) == 0 ? -1 : tvChannel.NewProgramNr;
         supMask >>= 1;
         refMask >>= 1;
       }

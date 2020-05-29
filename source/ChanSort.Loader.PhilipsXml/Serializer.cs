@@ -43,11 +43,13 @@ namespace ChanSort.Loader.PhilipsXml
     <Broadcast medium="dvbc" frequency="410000" system="west" serviceID="1" ONID="41985" TSID="1101" modulation="256" symbolrate="6901000" bandwidth="Unknown"></Broadcast>
     </Channel>
      
+
+    DVB-T and DVB-C share the same number range, so they are treated as a unified logical list
+
    */
   class Serializer : SerializerBase
   {
-    private readonly ChannelList terrChannels = new ChannelList(SignalSource.DvbT, "DVB-T");
-    private readonly ChannelList cableChannels = new ChannelList(SignalSource.DvbC, "DVB-C");
+    private readonly ChannelList dvbctChannels = new ChannelList(SignalSource.DvbCT, "DVB-C/T");
     private readonly ChannelList satChannels = new ChannelList(SignalSource.DvbS, "DVB-S");
     private readonly ChannelList allSatChannels = new ChannelList(SignalSource.DvbS, "DVB-S all");
     private readonly ChannelList favChannels = new ChannelList(SignalSource.All, "Favorites");
@@ -69,12 +71,14 @@ namespace ChanSort.Loader.PhilipsXml
       this.Features.DeleteMode = DeleteMode.Physically;
       this.Features.CanSaveAs = false;
       this.Features.AllowGapsInFavNumbers = false;
+      this.Features.CanEditFavListNames = true;
 
-      this.DataRoot.AddChannelList(this.terrChannels);
-      this.DataRoot.AddChannelList(this.cableChannels);
+      this.DataRoot.AddChannelList(this.dvbctChannels);
       this.DataRoot.AddChannelList(this.satChannels);
       this.DataRoot.AddChannelList(this.allSatChannels);
       this.DataRoot.AddChannelList(this.favChannels);
+
+      this.dvbctChannels.VisibleColumnFieldNames.Add("Source");
 
       foreach (var list in this.DataRoot.ChannelLists)
       {
@@ -145,6 +149,8 @@ namespace ChanSort.Loader.PhilipsXml
 
     private void LoadFile(string fileName)
     {
+      if (!File.Exists(fileName))
+        return;
       bool fail = false;
       var fileData = new FileData();
       try
@@ -249,11 +255,9 @@ namespace ChanSort.Loader.PhilipsXml
       ChannelList chList = null;
       switch (medium)
       {
-        case "dvbt":
-          chList = this.terrChannels;
-          break;
         case "dvbc":
-          chList = this.cableChannels;
+        case "dvbt":
+          chList = this.dvbctChannels;
           break;
         case "dvbs":
           chList = this.satChannels;
@@ -282,7 +286,7 @@ namespace ChanSort.Loader.PhilipsXml
           data.Add(attr.LocalName, attr.Value);
       }
 
-      if (!int.TryParse(data["UniqueID"], out var uniqueId)) // UniqueId only exists in ChannelMap_105 and later
+      if (!data.ContainsKey("UniqueID") || !int.TryParse(data["UniqueID"], out var uniqueId)) // UniqueId only exists in ChannelMap_105 and later
         uniqueId = rowId;
       var chan = new Channel(curList.SignalSource & SignalSource.MaskAdInput, rowId, uniqueId, setupNode);
       chan.OldProgramNr = -1;
@@ -323,6 +327,11 @@ namespace ChanSort.Loader.PhilipsXml
       if (chan.FreqInMhz > 2000)
         chan.FreqInMhz /= 1000;
       chan.ServiceType = ParseInt(data.TryGet("ServiceType"));
+      var decoderType = data.TryGet("DecoderType");
+      if (decoderType == "1")
+        chan.Source = "DVB-T";
+      else if (decoderType == "2")
+        chan.Source = "DVB-C";
       chan.SignalSource |= LookupData.Instance.IsRadioTvOrData(chan.ServiceType);
       chan.SymbolRate = ParseInt(data.TryGet("SymbolRate"));
       if (data.TryGetValue("Polarization", out var pol))
@@ -355,9 +364,12 @@ namespace ChanSort.Loader.PhilipsXml
     private void ReadFavList(XmlNode node)
     {
       int index = ParseInt(node.Attributes["Index"].InnerText);
+      string name = DecodeName(node.Attributes["Name"].InnerText);
       this.Features.SupportedFavorites |= (Favorites) (1 << (index - 1));
       this.Features.SortedFavorites = true;
       this.Features.MixedSourceFavorites = true;
+
+      this.DataRoot.SetFavListCaption(index - 1, name);
 
       if (this.favChannels.Count == 0)
       {
@@ -545,6 +557,9 @@ namespace ChanSort.Loader.PhilipsXml
       {
         ++index;
         favListNode.InnerXml = ""; // clear all <FavoriteChannel> child elements but keep the attributes of the current node
+        var attr = favListNode.Attributes?["Name"];
+        if (attr != null)
+          attr.InnerText = EncodeName(this.DataRoot.GetFavListCaption(index - 1));
         foreach (var ch in favChannels.Channels.OrderBy(ch => ch.GetPosition(index)))
         {
           var nr = ch.GetPosition(index);
@@ -570,6 +585,7 @@ namespace ChanSort.Loader.PhilipsXml
       var sb = new StringBuilder();
       foreach (var b in bytes)
         sb.Append($"0x{b:X2} 0x00 ");
+      sb.Remove(sb.Length - 1, 1);
       return sb.ToString();
     }
     #endregion

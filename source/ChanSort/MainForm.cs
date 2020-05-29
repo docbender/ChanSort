@@ -21,13 +21,13 @@ using DevExpress.Utils;
 using DevExpress.XtraBars;
 using DevExpress.XtraEditors;
 using DevExpress.XtraEditors.Controls;
-using DevExpress.XtraEditors.Repository;
 using DevExpress.XtraGrid;
 using DevExpress.XtraGrid.Columns;
 using DevExpress.XtraGrid.Views.Base;
 using DevExpress.XtraGrid.Views.Grid;
 using DevExpress.XtraGrid.Views.Grid.ViewInfo;
 using DevExpress.XtraTab;
+using Timer = System.Windows.Forms.Timer;
 
 namespace ChanSort.Ui
 {
@@ -52,6 +52,7 @@ namespace ChanSort.Ui
     private bool ignoreLanguageChange;
     private GridView lastFocusedGrid;
     private int subListIndex;
+    private SizeF absScaleFactor = new SizeF(1,1);
 
     #region ctor()
 
@@ -74,7 +75,7 @@ namespace ChanSort.Ui
       this.colOutSource.Caption = this.colSource.Caption; // copy translated caption
 
       if (!Config.Default.WindowSize.IsEmpty)
-        this.Size = Config.Default.WindowSize;
+        this.ClientSize = Config.Default.WindowSize.Scale(absScaleFactor);
       this.title = string.Format(base.Text, AppVersion);
       base.Text = title;
       this.Plugins = this.LoadSerializerPlugins();
@@ -99,8 +100,10 @@ namespace ChanSort.Ui
       this.miAddFromRefList.Enabled = false;
 #endif
 
-      View.View.Default = new View.View();
-      View.View.Default.CreateActionBox = msg => new ActionBoxDialog(msg);
+      // The Api.View.Default object gives loaders access to UI functions
+      Api.View.Default = new Api.View();
+      Api.View.Default.CreateActionBox = msg => new ActionBoxDialog(msg);
+      Api.View.Default.MessageBoxImpl = (msg, caption, buttons, icon) => (int)XtraMessageBox.Show(this, msg, caption, (MessageBoxButtons) buttons, (MessageBoxIcon) icon);
 
       var defaultColumns = new List<string>();
       foreach (GridColumn col in this.gviewRight.Columns.OrderBy(c => c.VisibleIndex))
@@ -111,7 +114,6 @@ namespace ChanSort.Ui
 
       ChannelList.DefaultVisibleColumns = defaultColumns;
     }
-
     #endregion
 
     internal IList<ISerializerPlugin> Plugins { get; }
@@ -341,17 +343,18 @@ namespace ChanSort.Ui
         return true;
 
       var content = File.ReadAllBytes(tvDataFile);
-      var isAllZero = true;
+      var isAllSame = true;
+      var val = content.Length > 0 ? content[0] : 0;
       for (int i = 0, c = content.Length; i < c; i++)
       {
-        if (content[i] != 0)
+        if (content[i] != val)
         {
-          isAllZero = false;
+          isAllSame = false;
           break;
         }
       }
 
-      if (isAllZero)
+      if (isAllSame)
       {
         XtraMessageBox.Show(this,
           Resources.MainForm_LoadFiles_AllZero,
@@ -379,7 +382,8 @@ namespace ChanSort.Ui
       }
       this.mnuInputSource.ClearLinks();
 
-      XtraTabPage firstNonEmpty = null;
+      XtraTabPage mostChannels = null;
+      int mostChannelsCount = 0;
       var i = 0;
       foreach (var list in this.DataRoot.ChannelLists)
       {
@@ -387,8 +391,12 @@ namespace ChanSort.Ui
           continue;
         var tab = this.tabChannelList.TabPages.Add(list.Caption);
         tab.Tag = list;
-        if (firstNonEmpty == null && list.Count > 0)
-          firstNonEmpty = tab;
+        if (!list.IsMixedSourceFavoritesList && (mostChannels == null || list.Count > mostChannelsCount))
+        {
+          mostChannels = tab;
+          mostChannelsCount = list.Count;
+        }
+
         var item = new BarButtonItem(this.barManager1, list.Caption);
         item.ItemShortcut = new BarShortcut((Keys) ((int) (Keys.Alt | Keys.D1) + i));
         item.Tag = i;
@@ -399,12 +407,12 @@ namespace ChanSort.Ui
 
       if (tabChannelList.TabPages.Count > 0)
       {
-        if (firstNonEmpty == null)
-          firstNonEmpty = tabChannelList.TabPages[0];
-        if (firstNonEmpty == this.tabChannelList.SelectedTabPage)
-          this.ShowChannelList((ChannelList) firstNonEmpty.Tag);
+        if (mostChannels == null)
+          mostChannels = tabChannelList.TabPages[0];
+        if (mostChannels == this.tabChannelList.SelectedTabPage)
+          this.ShowChannelList((ChannelList)mostChannels.Tag);
         else
-          this.tabChannelList.SelectedTabPage = firstNonEmpty;
+          this.tabChannelList.SelectedTabPage = mostChannels;
       }
       else
       {
@@ -456,10 +464,10 @@ namespace ChanSort.Ui
       while (this.tabSubList.TabPages.Count > favCount + 1)
         this.tabSubList.TabPages.RemoveAt(this.tabSubList.TabPages.Count - 1);
       while (this.tabSubList.TabPages.Count < favCount + 1)
-      {
-        var page = this.tabSubList.TabPages.Add();
-        page.Text = "Fav " + (char) ('A' + this.tabSubList.TabPages.Count - 2);
-      }
+        this.tabSubList.TabPages.Add();
+      for (int i = 1; i < this.tabSubList.TabPages.Count; i++)
+        this.tabSubList.TabPages[i].Text = this.DataRoot.GetFavListCaption(i - 1, true);
+
       if (!this.DataRoot.SortedFavorites || this.subListIndex >= favCount)
       {
         this.tabSubList.SelectedTabPageIndex = 0;
@@ -634,10 +642,8 @@ namespace ChanSort.Ui
         this.BeginInvoke((Action) (() => this.ShowOpenReferenceFileDialog(false)));
       else if (res == DialogResult.No)
       {
-        //this.currentTvSerializer.ApplyCurrentProgramNumbers();
         this.DataRoot.ApplyCurrentProgramNumbers();
         this.RefreshGrid(this.gviewLeft, this.gviewRight);
-        //this.rbInsertSwap.Checked = true;
       }
     }
 
@@ -1157,7 +1163,7 @@ namespace ChanSort.Ui
 
     private void SortSelectedChannels()
     {
-      var selectedChannels = this.GetSelectedChannels(this.gviewLeft);
+      var selectedChannels = this.GetSelectedChannels(this.gviewLeft, true);
       if (selectedChannels.Count == 0) return;
       this.gviewLeft.BeginDataUpdate();
       this.gviewRight.BeginDataUpdate();
@@ -1203,7 +1209,7 @@ namespace ChanSort.Ui
 
     private void RenumberSelectedChannels()
     {
-      var list = this.GetSelectedChannels(this.gviewLeft);
+      var list = this.GetSelectedChannels(this.gviewLeft, true);
       if (list.Count == 0) return;
       this.gviewRight.BeginDataUpdate();
       this.gviewLeft.BeginDataUpdate();
@@ -1216,14 +1222,23 @@ namespace ChanSort.Ui
 
     #region GetSelectedChannels()
 
-    private List<ChannelInfo> GetSelectedChannels(GridView gview)
+    private List<ChannelInfo> GetSelectedChannels(GridView gview, bool selectAllIfOnlyOneIsSelected = false)
     {
       var channels = new List<ChannelInfo>();
-      foreach (var rowHandle in gview.GetSelectedRows())
+      if (gview.SelectedRowsCount <= 1 && selectAllIfOnlyOneIsSelected)
       {
-        if (gview.IsDataRow(rowHandle))
-          channels.Add((ChannelInfo) gview.GetRow(rowHandle));
+        for (int rowHandle=0; rowHandle<gview.RowCount; rowHandle++)
+          channels.Add((ChannelInfo)gview.GetRow(rowHandle));
       }
+      else
+      {
+        foreach (var rowHandle in gview.GetSelectedRows())
+        {
+          if (gview.IsDataRow(rowHandle))
+            channels.Add((ChannelInfo) gview.GetRow(rowHandle));
+        }
+      }
+
       return channels;
     }
 
@@ -1264,7 +1279,7 @@ namespace ChanSort.Ui
 
       var width = Config.Default.LeftPanelWidth;
       if (width > 0)
-        this.splitContainerControl1.SplitterPosition = width;
+        this.splitContainerControl1.SplitterPosition = width; // set unscaled value because the whole Form will be scaled later
       this.SelectLanguageMenuItem();
 
       //this.SetGridLayout(this.gviewLeft, Config.Default.OutputListLayout);
@@ -1279,6 +1294,15 @@ namespace ChanSort.Ui
 
       this.miExplorerIntegration.Down = Config.Default.ExplorerIntegration;
       this.miCheckUpdates.Down = Config.Default.CheckForUpdates;
+
+      foreach (var mi in new[] { miFontSmall, miFontMedium, miFontLarge, miFontXLarge, miFontXxLarge })
+      {
+        if ((int)mi.Tag == Config.Default.FontSizeDelta)
+        {
+          mi.Down = true;
+          break;
+        }
+      }
     }
 
     #endregion
@@ -1335,6 +1359,8 @@ namespace ChanSort.Ui
 
     private void UpdateInsertSlotNumber()
     {
+      if (this.subListIndex < 0)
+        return;
       var channel = (ChannelInfo) this.gviewLeft.GetFocusedRow();
       int programNr;
       if (channel == null)
@@ -1512,7 +1538,7 @@ namespace ChanSort.Ui
       if (col == this.colDebug) return col.Visible;
       if (col == this.colSignalSource) return col.Visible;
       if (col == this.colLogicalIndex) return col.Visible;
-      if (col == this.colPolarity) return (source & SignalSource.Sat) != 0;
+      if (col == this.colPolarity) return (source & SignalSource.Sat) != 0 || (source & SignalSource.IP) != 0;
 
       return true;
     }
@@ -1531,7 +1557,7 @@ namespace ChanSort.Ui
 
       this.gviewRight.BeginDataUpdate();
       this.gviewLeft.BeginDataUpdate();
-      this.Editor.SetFavorites(list, (Favorites) (1 << idx), set);
+      this.Editor.SetFavorites(list, idx, set);
       this.gviewRight.EndDataUpdate();
       this.gviewLeft.EndDataUpdate();
     }
@@ -1618,7 +1644,7 @@ namespace ChanSort.Ui
       this.btnToggleFavF.Enabled = mayEdit && (this.DataRoot.SupportedFavorites & Favorites.F) != 0 && this.subListIndex != 6;
       this.btnToggleFavG.Enabled = mayEdit && (this.DataRoot.SupportedFavorites & Favorites.G) != 0 && this.subListIndex != 7;
       this.btnToggleFavH.Enabled = mayEdit && (this.DataRoot.SupportedFavorites & Favorites.H) != 0 && this.subListIndex != 8;
-      this.btnToggleLock.Enabled = mayEdit;
+      this.btnToggleLock.Enabled = mayEdit && this.DataRoot.CanLock;
 
       if (afterFileLoad)
       {
@@ -1651,7 +1677,7 @@ namespace ChanSort.Ui
       var isLeftGridSortedByNewProgNr = this.IsLeftGridSortedByNewProgNr;
       var sel = this.gviewLeft.GetSelectedRows();
       var channel = sel.Length == 0 ? null : (ChannelInfo) this.gviewLeft.GetRow(sel[0]);
-      this.miMoveUp.Enabled = this.btnUp.Enabled = mayEdit && isLeftGridSortedByNewProgNr && channel != null
+      this.miMoveUp.Enabled = this.btnUp.Enabled = mayEdit && this.subListIndex >= 0 && isLeftGridSortedByNewProgNr && channel != null
                                                    && channel.GetPosition(this.subListIndex) > this.CurrentChannelList.FirstProgramNumber;
       this.miMoveDown.Enabled = this.btnDown.Enabled = mayEdit && isLeftGridSortedByNewProgNr;
 
@@ -1985,31 +2011,22 @@ namespace ChanSort.Ui
 
     #endregion
 
-    #region Language menu
-
-    private void miLanguage_DownChanged(object sender, ItemClickEventArgs e)
+    #region OnDpiChanged, OnScaleControl
+    protected override void OnDpiChanged(DpiChangedEventArgs e)
     {
-      try
-      {
-        if (this.ignoreLanguageChange)
-          return;
-        var menuItem = (BarButtonItem) sender;
-        if (!menuItem.Down)
-          return;
-        if (!this.PromptSaveAndContinue())
-          return;
-        var locale = (string) menuItem.Tag;
-        Program.ChangeLanguage = true;
-        Thread.CurrentThread.CurrentUICulture = new CultureInfo(locale);
-        this.Close();
-      }
-      catch (Exception ex)
-      {
-        HandleException(ex);
-      }
+      GlobalImageCollection.Scale((float)e.DeviceDpiNew / e.DeviceDpiOld, true);
+      base.OnDpiChanged(e);
+    }
+
+    protected override void OnScaleControl()
+    {
+      this.absScaleFactor = absScaleFactor.Scale(this.AutoScaleFactor);
+      GlobalImageCollection.Scale(this.AutoScaleFactor.Height, true);
+      base.OnScaleControl();
     }
 
     #endregion
+
 
     // -- controls
 
@@ -2677,10 +2694,10 @@ namespace ChanSort.Ui
       this.gviewRight.PostEditor();
       this.gviewLeft.PostEditor();
 
-      Config.Default.WindowSize = this.WindowState == FormWindowState.Normal ? this.Size : this.RestoreBounds.Size;
+      Config.Default.WindowSize = Tools.Unscale(this.WindowState == FormWindowState.Normal ? this.ClientSize : this.RestoreBounds.Size, this.absScaleFactor);
       Config.Default.Encoding = this.defaultEncoding.WebName;
       Config.Default.Language = Thread.CurrentThread.CurrentUICulture.Name;
-      Config.Default.LeftPanelWidth = this.splitContainerControl1.SplitterPosition;
+      Config.Default.LeftPanelWidth = this.splitContainerControl1.SplitterPosition.Unscale(this.absScaleFactor.Width);
       Config.Default.OutputListLayout = GetGridLayout(this.gviewLeft);
       if (this.CurrentChannelList != null)
         SaveInputGridLayout(this.CurrentChannelList.SignalSource);
@@ -3003,6 +3020,32 @@ namespace ChanSort.Ui
 
     #endregion
 
+    #region Language menu
+
+    private void miLanguage_DownChanged(object sender, ItemClickEventArgs e)
+    {
+      try
+      {
+        if (this.ignoreLanguageChange)
+          return;
+        var menuItem = (BarButtonItem)sender;
+        if (!menuItem.Down)
+          return;
+        if (!this.PromptSaveAndContinue())
+          return;
+        var locale = (string)menuItem.Tag;
+        Program.ChangeLanguage = true;
+        Thread.CurrentThread.CurrentUICulture = new CultureInfo(locale);
+        this.Close();
+      }
+      catch (Exception ex)
+      {
+        HandleException(ex);
+      }
+    }
+
+    #endregion
+
     #region Help menu
 
     private void miWiki_ItemClick(object sender, ItemClickEventArgs e)
@@ -3063,6 +3106,33 @@ namespace ChanSort.Ui
       TryExecute(this.FocusRightList);
     }
 
+    private void miFont_DownChanged(object sender, ItemClickEventArgs e)
+    {
+      TryExecute(() =>
+      {
+        var deltaSize = (int)e.Item.Tag;
+        if (!((BarButtonItem) e.Item).Down)
+        {
+          // reselect the current font size
+          if (deltaSize == Config.Default.FontSizeDelta)
+            ((BarButtonItem) e.Item).Down = true;
+          return;
+        }
+
+        if (deltaSize == Config.Default.FontSizeDelta) // no change => early exit
+          return;
+
+        var font = new Font(deltaSize == 0 ? "Tahoma" : "Segoe UI", 8.25f + deltaSize);
+        WindowsFormsSettings.DefaultFont = font;
+        font = new Font("Segoe UI", 9 + deltaSize);
+        WindowsFormsSettings.DefaultMenuFont = font;
+
+        Config.Default.FontSizeDelta = deltaSize;
+        foreach (var mi in new[] {miFontSmall, miFontMedium, miFontLarge, miFontXLarge, miFontXxLarge})
+          mi.Down = e.Item == mi;
+      });
+    }
+
     #endregion
 
     #region miExplorerIntegration_ItemClick
@@ -3118,6 +3188,8 @@ namespace ChanSort.Ui
       }
     }
     #endregion
+
+
 
     #region gview_MouseDown, gview_MouseUp, timerEditDelay_Tick, gview_ShowingEditor
 
@@ -3310,5 +3382,27 @@ namespace ChanSort.Ui
 
     #endregion
 
+    #region tabSubList_MouseUp
+    private void tabSubList_MouseUp(object sender, MouseEventArgs e)
+    {
+      if (e.Button == MouseButtons.Right)
+      {
+        var hit = this.tabSubList.CalcHitInfo(e.Location);
+        if (hit.IsValid && hit.Page != null)
+        {
+          using var dlg = new TextInputForm();
+          dlg.StartPosition = FormStartPosition.Manual;
+          dlg.Location = this.tabSubList.PointToScreen(e.Location);
+          var favIndex = this.tabSubList.TabPages.IndexOf(hit.Page) - 1;
+          dlg.Text = this.DataRoot.GetFavListCaption(favIndex);
+          if (dlg.ShowDialog(this) == DialogResult.OK)
+          {
+            this.DataRoot.SetFavListCaption(favIndex, dlg.Text);
+            hit.Page.Text = this.DataRoot.GetFavListCaption(favIndex, true);
+          }
+        }
+      }
+    }
+    #endregion
   }
 }

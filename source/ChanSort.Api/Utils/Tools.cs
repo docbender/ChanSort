@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Text;
 
 namespace ChanSort.Api
@@ -130,6 +131,80 @@ namespace ChanSort.Api
         sb.Append(hexDigits[b >> 4]).Append(hexDigits[b & 0x0F]);
       return sb.ToString();
     }
+    #endregion
+
+    #region IsUtf8()
+    /// <summary>
+    /// This method tests whether the binary data can be interpreted as valid UTF-8. If not, it might be encoded with a locale specific encoding
+    /// </summary>
+    public static bool IsUtf8(byte[] buffer)
+    {
+      int followBytes = 0;
+      foreach (byte b in buffer)
+      {
+        if (followBytes > 0)
+        {
+          if ((b & 0xC0) != 0x80) // follow-up bytes must be 10xx xxxx
+            return false;
+          --followBytes;
+          continue;
+        }
+
+        if (b < 0x80) // standard ASCII characters
+          continue;
+
+        if (b < 0xC0) // [0x80-0xBF] is only allowed for UTF-8 follow-up bytes
+          return false;
+
+        if (b < 0xE0) // 110x xxxx
+          followBytes = 1;
+        else if (b < 0xF0) // 1110 xxxx
+          followBytes = 2;
+        else if (b < 0xF8) // 1111 0xxx
+          followBytes = 3;
+        else
+          return false; // can't be more than 3 follow-up bytes
+      }
+
+      return followBytes == 0;
+    }
+    #endregion
+
+    #region HasUtf8Bom()
+    public static bool HasUtf8Bom(byte[] content)
+    {
+      if (content == null || content.Length < 3)
+        return false;
+      return content[0] == 0xEF && content[1] == 0xBB && content[2] == 0xBF;
+    }
+    #endregion
+
+    #region Scale()
+    public static int Scale(this int dist, float factor)
+    {
+      return (int)Math.Round(dist * factor);
+    }
+
+    public static Size Scale(this Size size, SizeF factor)
+    {
+      return new Size((int)Math.Round(size.Width * factor.Width), (int)Math.Round(size.Height * factor.Height));
+    }
+
+    public static SizeF Scale(this SizeF absFactor, SizeF relFactor)
+    {
+      return new SizeF(absFactor.Width * relFactor.Width, absFactor.Height * relFactor.Height);
+    }
+
+    public static int Unscale(this int dist, float factor)
+    {
+      return (int)Math.Round(dist / factor);
+    }
+
+    public static Size Unscale(this Size size, SizeF factor)
+    {
+      return new Size((int)Math.Round(size.Width / factor.Width), (int)Math.Round(size.Height / factor.Height));
+    }
+
     #endregion
   }
 }
